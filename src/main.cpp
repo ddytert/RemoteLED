@@ -56,7 +56,7 @@ void setup()
     Serial.println("nRF24L01 module connected!");
 
   // Set start colors
-  loadLEDColorsFromString("031020FF0010FF800000FFFF");
+  loadLEDColorsFromString("031010FF0010FF800000FFFF");
 
   /* Set the data rate:
    * RF24_250KBPS: 250 kbit per second
@@ -192,9 +192,9 @@ void loadLEDColorsFromString(String colorsData)
   shineDuration = newShineDuration;
 
   unsigned int const newTransitionDuration = colorsData.substring(4, 6).toInt();
-  if (newTransitionDuration == 0 || newTransitionDuration > 99)
+  if (newTransitionDuration < 0 || newTransitionDuration > 99)
   {
-    Serial.print("Error: Transition duration not correct");
+    Serial.print("Error: Transition duration not correct: ");
     Serial.println(newTransitionDuration);
     return;
   }
@@ -206,10 +206,10 @@ void loadLEDColorsFromString(String colorsData)
   {
     int redDec, blueDec, greenDec;
 
-    int offset = i * 6 + 4;
+    int offset = i * 6 + 6;
     // Get one color from color info string
     String colorData = colorsData.substring(offset, offset + 6);
-    Serial.printf("Color #%d = %s\n", i + 1, colorData);
+    Serial.printf("\nColor #%d = %s\n", i + 1, colorData);
 
     redDec = hex2int(colorData[0], colorData[1]);
     blueDec = hex2int(colorData[2], colorData[3]);
@@ -236,7 +236,10 @@ void loadLEDColorsFromString(String colorsData)
 void changeLEDColor()
 {
   static unsigned long lastUpdate = millis();
+  static unsigned long lastUpdateShort = millis();
+
   unsigned long timeElapsed = millis() - lastUpdate;
+  unsigned long timeElapsedShort = millis() - lastUpdateShort;
 
   if (!isTransitioning)
   {
@@ -251,6 +254,13 @@ void changeLEDColor()
     // Mix colors during transition
     if (timeElapsed <= transitionDuration * 100)
     {
+      // Limit writing to analog pins to every 5 milliseconds
+      if (timeElapsedShort < 5)
+      {
+        return;
+      }
+      lastUpdateShort = millis();
+
       int newColorIndex = currentColorIndex == numberOfColors - 1 ? 0 : currentColorIndex + 1;
       int *oldColor = colors[currentColorIndex];
       int *newColor = colors[newColorIndex];
