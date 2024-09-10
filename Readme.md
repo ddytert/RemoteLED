@@ -36,11 +36,11 @@ Falls der Upload des Programms über USB nicht funktioniert, BOOT und RESET Butt
 | MOSI  | <---> | MOSI (GPIO06) |
 | MISO  | <---> | MISO (GPIO05) |
 
-### Idee für Senden und Empfangen von Nachrichten > 32 bytes
+### Senden und Empfangen von Nachrichten > 32 bytes
 
 1. Die Nachricht wird über Serial an Arduino übergeben
 2. Die Länge der Nachricht wird geprüft und die Anzahl der Payloads ermittelt
-3. Die erste Payload enthält als Befehlscode z.B. **MPMG** _MultiPayloadMessaGe_ und die Anzahl der folgenden Payloads. Beispiel **MPMG03**
+3. Die erste Payload enthält als Befehlscode **MPMG** _MultiPayloadMessaGe_ und die Anzahl der folgenden Payloads. Beispiel **MPMG03**
 4. Der Sender sendet **MPMG03** und wartet auf die Bestätigung vom Empfänger
 5. Der Empfänger empfängt **MPMG03** und geht in den Empfangsmodus für 3 weitere Payloads
 6. Der Sender erhält die Empfangsbestätigung für die Payload mit der MPMG03 Nachricht und sendet die Payload mit dem ersten Teil der Nachricht
