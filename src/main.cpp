@@ -30,8 +30,8 @@ int numberOfColors;
 int colors[MAX_COLORS][3]; // Array of rbg arrays
 int currentColorIndex = 0;
 
-unsigned long shineDuration = 10;
-unsigned long transitionDuration = 10;
+unsigned long shineDuration = 1000;
+unsigned long transitionDuration = 1000;
 bool isTransitioning = false;
 
 void setup()
@@ -56,7 +56,9 @@ void setup()
     Serial.println("nRF24L01 module connected!");
 
   // Set start colors
-  loadLEDColorsFromString("031010FF0010FF800000FFFF");
+  String initString = String("02 03 03 000000 000010");
+  initString.replace(" ", "");
+  loadLEDColorsFromString(initString);
 
   /* Set the data rate:
    * RF24_250KBPS: 250 kbit per second
@@ -189,7 +191,7 @@ void loadLEDColorsFromString(String colorsData)
     Serial.println(newShineDuration);
     return;
   }
-  shineDuration = newShineDuration;
+  shineDuration = newShineDuration * 100;
 
   unsigned int const newTransitionDuration = colorsData.substring(4, 6).toInt();
   if (newTransitionDuration < 0 || newTransitionDuration > 99)
@@ -198,7 +200,7 @@ void loadLEDColorsFromString(String colorsData)
     Serial.println(newTransitionDuration);
     return;
   }
-  transitionDuration = newTransitionDuration;
+  transitionDuration = newTransitionDuration * 100;
 
   Serial.printf("Start parsing %d colors\n", numberOfColors);
 
@@ -243,7 +245,7 @@ void changeLEDColor()
 
   if (!isTransitioning)
   {
-    if (timeElapsed > shineDuration * 100)
+    if (timeElapsed > shineDuration)
     {
       isTransitioning = true;
       lastUpdate = millis();
@@ -252,7 +254,7 @@ void changeLEDColor()
   else
   {
     // Mix colors during transition
-    if (timeElapsed <= transitionDuration * 100)
+    if (timeElapsed <= transitionDuration)
     {
       // Limit writing to analog pins to every 5 milliseconds
       if (timeElapsedShort < 5)
@@ -265,7 +267,7 @@ void changeLEDColor()
       int *oldColor = colors[currentColorIndex];
       int *newColor = colors[newColorIndex];
       // Get transition value
-      float tValue = float(timeElapsed) / float(transitionDuration * 100);
+      float tValue = float(timeElapsed) / float(transitionDuration);
       // Mix colors
       int mixedRed = int(float(oldColor[0]) * (1.0 - tValue) + float(newColor[0]) * tValue);
       int mixedBlue = int(float(oldColor[1]) * (1.0 - tValue) + float(newColor[1]) * tValue);
