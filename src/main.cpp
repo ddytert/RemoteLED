@@ -11,12 +11,15 @@ void initReceptionOfMPMG(String);
 void assembleMPMG(String);
 void loadLEDColorsFromString(String);
 void changeLEDColor();
+void switchRelais(String);
 int hex2int(char, char);
 
 // Variables
 const int redPin = 1;   // pin for red LED
 const int bluePin = 2;  // pin for blue LED
 const int greenpin = 3; // pin for green LED
+
+const int relaisPin = 21;
 
 RF24 radio(9, 10);               // (CE, CSN)
 const byte address[6] = "1RF24"; // address / identifier
@@ -40,6 +43,9 @@ void setup()
   pinMode(redPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
   pinMode(greenpin, OUTPUT);
+
+  // Set relais pin
+  pinMode(relaisPin, OUTPUT);
 
   Serial.begin(115200);
   Serial.println("Connecting to nRF24L01...");
@@ -125,13 +131,17 @@ void parseMessage(String message)
   Serial.println(data);
 
   // Example string: "CCOL011122FF"
-  if (command == "CCOL")
+  if (command == "CCOL") // ChangeCOLor
   {
     loadLEDColorsFromString(data);
   }
-  else if (command == "MPMG")
+  else if (command == "MPMG") // MultiPayloadMessaGe
   {
     initReceptionOfMPMG(data);
+  }
+  else if (command == "SWRE") // SWitch RElais
+  {
+    switchRelais(data);
   }
 }
 
@@ -291,6 +301,18 @@ void changeLEDColor()
       analogWrite(bluePin, colors[currentColorIndex][1]);
       analogWrite(greenpin, colors[currentColorIndex][2]);
     }
+  }
+}
+
+void switchRelais(String data)
+{
+  if (data == "ON")
+  {
+    digitalWrite(relaisPin, HIGH);
+  }
+  else if (data == "OFF")
+  {
+    digitalWrite(relaisPin, LOW);
   }
 }
 
