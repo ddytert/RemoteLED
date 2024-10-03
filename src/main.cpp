@@ -139,7 +139,7 @@ void parseMessage(String message)
   {
     initReceptionOfMPMG(data);
   }
-  else if (command == "SWRE") // SWitch RElais
+  else if (command == "SWRE") // SWitch Relais
   {
     switchRelais(data);
   }
@@ -247,8 +247,7 @@ void loadLEDColorsFromString(String colorsData)
 
 void changeLEDColor()
 {
-  static unsigned long lastUpdate = millis();
-  static unsigned long lastUpdateShort = millis();
+  static unsigned long lastUpdate, lastUpdateShort = millis();
 
   unsigned long timeElapsed = millis() - lastUpdate;
   unsigned long timeElapsedShort = millis() - lastUpdateShort;
